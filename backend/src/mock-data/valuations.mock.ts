@@ -1,0 +1,38 @@
+export const valuationsMock = [
+  {
+    id: 1,
+    clientId: "TestKlant",
+    quarter: "2023Q1",
+    snapshotId: 26,
+    versionId: 2,
+    isValuator: false,
+    valuatorId: null,
+  },
+  {
+    id: 2,
+    clientId: "TestKlant",
+    quarter: "2023Q2",
+    snapshotId: 26,
+    versionId: 2,
+    isValuator: false,
+    valuatorId: null,
+  },
+  {
+    id: 3,
+    clientId: "TestKlant",
+    quarter: "2023Q3",
+    snapshotId: 26,
+    versionId: 2,
+    isValuator: false,
+    valuatorId: null,
+  },
+  {
+    id: 4,
+    clientId: "TestKlant",
+    quarter: "2023Q4",
+    snapshotId: 26,
+    versionId: 2,
+    isValuator: false,
+    valuatorId: null,
+  },
+];
