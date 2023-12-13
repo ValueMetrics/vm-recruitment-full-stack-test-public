@@ -11,7 +11,7 @@
 import DownloadSolid from "@/assets/icons/DownloadSolid.vue";
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .icon {
   /* If dark mode set to text color */
   @media (prefers-color-scheme: dark) {

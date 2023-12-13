@@ -4,7 +4,7 @@ export const REPORT_STORAGE_DIRNAME = "reports";
 
 export const REPORT_DEFAULT_COLUMN_WIDTH = 14;
 
-export const REPORT_HEADER_FONT_CONFIG = {
+export const headerReportFontConfig = {
   name: "Calibri",
   family: 4,
   size: 11,
@@ -12,7 +12,7 @@ export const REPORT_HEADER_FONT_CONFIG = {
   bold: true,
 };
 
-export const REPORT_DEFAULT_FONT_CONFIG = {
+export const defaultReportFontConfig = {
   name: "Calibri",
   family: 4,
   size: 11,

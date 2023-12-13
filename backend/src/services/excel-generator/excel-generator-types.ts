@@ -1,5 +1,5 @@
 export interface ExcelReportConfig {
-  filePath?: string;
+  filePath: string;
   layoutConfig: ReportSheetLayout[];
 }
 

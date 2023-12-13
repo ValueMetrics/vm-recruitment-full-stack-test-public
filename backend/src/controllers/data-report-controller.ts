@@ -8,7 +8,7 @@ import { createMSSQLConnection } from "../services/mssql-database-connection/cre
 import {
   GenerateExcelReportOutput,
   generateExcelReport,
-} from "../services/excel-generator/excel-generator.controller";
+} from "../services/excel-generator/excel-generator";
 
 export interface DataReportParams {
   clientId?: string;
@@ -22,7 +22,7 @@ export interface DataReportParams {
 }
 
 export async function generateDataReport(
-  dataReportParams: DataReportParams,
+  dataReportParams: DataReportParams
 ): Promise<GenerateExcelReportOutput> {
   const {
     clientId,
@@ -70,7 +70,7 @@ export async function generateDataReport(
     connection,
     qStream,
     paramsStream,
-    undefined,
+    undefined
   );
 
   // Generate excel
@@ -78,7 +78,7 @@ export async function generateDataReport(
     reportId,
     worksheets,
     columns,
-    readableStream,
+    readableStream
   );
 
   return { excelStream, filename };

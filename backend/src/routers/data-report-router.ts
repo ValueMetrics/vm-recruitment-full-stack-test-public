@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   generateDataReport,
   DataReportParams,
-} from "../controllers/datareport-controller";
+} from "../controllers/data-report-controller";
 import { booleanParamSchema } from "../utils/zodBooleanParamSchema";
 
 const router = express.Router();
@@ -34,7 +34,7 @@ router.get("/data_report", async (req, res) => {
     res.header("Content-Disposition", `attachment; filename=${filename}`);
     res.header(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
 
     // Pipe stream to response

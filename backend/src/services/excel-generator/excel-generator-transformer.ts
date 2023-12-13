@@ -1,12 +1,19 @@
-import { Transform, TransformCallback, PassThrough } from "stream";
+import { PassThrough, Transform, TransformCallback } from "stream";
 import Excel from "exceljs";
 
-import { ExcelReportConfig, ReportSheetLayout } from "./excel-generator.types";
-import { ExcelGenerationError } from "./excel-generator.classes";
+import { ExcelReportConfig, ReportSheetLayout } from "./excel-generator-types";
 import {
   transformRowValues,
   writeSheetHeader,
-} from "./excel-generator.helpers";
+  skipEmptySheet,
+} from "./excel-generator-helpers";
+
+export class ExcelGenerationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ExcelGenerationError";
+  }
+}
 
 export class ReportExcelTransformer extends Transform {
   private workbook: Excel.stream.xlsx.WorkbookWriter;
@@ -46,7 +53,7 @@ export class ReportExcelTransformer extends Transform {
 
   createNewWorksheet(
     sheetLayout: ReportSheetLayout,
-    rowData: {},
+    rowData: {}
   ): Excel.Worksheet {
     if (this.currentWorksheet) {
       this.currentWorksheet.commit();
@@ -54,13 +61,13 @@ export class ReportExcelTransformer extends Transform {
 
     const worksheet = this.workbook.addWorksheet(
       sheetLayout.sheetName,
-      sheetLayout.freeze,
+      sheetLayout.freeze
     );
 
     const worksheetWithHeader = writeSheetHeader(
       worksheet,
       rowData,
-      sheetLayout,
+      sheetLayout
     );
 
     return worksheetWithHeader;
@@ -83,32 +90,25 @@ export class ReportExcelTransformer extends Transform {
 
   getSheetLayout(sheetName: string): ReportSheetLayout {
     const sheetLayout = this.sheetLayouts.find(
-      (sheetLayout) => sheetLayout.sheetName === sheetName,
+      (sheetLayout) => sheetLayout.sheetName === sheetName
     );
     if (!sheetLayout) {
       throw new ExcelGenerationError(
-        `Sheet layout not found for sheet: ${sheetName}`,
+        `Sheet layout not found for sheet: ${sheetName}`
       );
     }
     return sheetLayout;
   }
 
-  skipEmptySheet(row: {}): boolean {
-    return (
-      Object.values(row).every((value) => value === null) &&
-      Object.keys(row).every((key) => key === "Kolom")
-    );
-  }
-
   _transform(
     chunk: any,
     encoding: BufferEncoding,
-    callback: TransformCallback,
+    callback: TransformCallback
   ): void {
     try {
       const { recordsetName, rowData } = chunk;
       const sheetName = recordsetName;
-      if (this.skipEmptySheet(rowData)) {
+      if (skipEmptySheet(rowData)) {
         callback(null);
         return;
       }
@@ -126,7 +126,6 @@ export class ReportExcelTransformer extends Transform {
       await this.workbook.commit();
       callback(null);
     } catch (error: any) {
-      console.log(error);
       callback(error);
     }
   }

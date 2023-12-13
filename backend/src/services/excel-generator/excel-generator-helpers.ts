@@ -7,20 +7,19 @@ import {
   ReportSheetFreezeConfig,
   ReportSheetLayout,
   WorksheetDefinitions,
-} from "./excel-generator.types";
-import { Recordset } from "../mssql-recordset-streaming/mssql-recordset-streaming.types";
+} from "./excel-generator-types";
 import {
   MILLISECONDS_IN_MINUTE,
   REPORT_DEFAULT_COLUMN_WIDTH,
-  REPORT_DEFAULT_FONT_CONFIG,
-  REPORT_HEADER_FONT_CONFIG,
+  defaultReportFontConfig,
+  headerReportFontConfig,
   REPORT_STORAGE_DIRNAME,
-} from "./excel-generator.constants";
+} from "./excel-generator-config";
 import DateCurrent from "../../utils/dateCurrent";
 
 export function extractFilenameFromFilePath(filePath: string): string {
   const filePathParts = filePath.split("/");
-  return filePathParts[filePathParts.length - 1];
+  return filePathParts[filePathParts.length - 1].split(".")[0];
 }
 
 export function transformRowValues(rowValues: any[]): unknown[] {
@@ -39,16 +38,16 @@ export function transformRowValues(rowValues: any[]): unknown[] {
 export function writeSheetHeader(
   worksheet: Excel.Worksheet,
   row: {},
-  sheetLayout: ReportSheetLayout,
+  sheetLayout: ReportSheetLayout
 ): Excel.Worksheet {
   worksheet.columns = Object.keys(row).map((column) => {
     const currentColumn: ReportColumnLayout = sheetLayout.columns.find(
-      (columnLayout) => columnLayout.column === column,
+      (columnLayout) => columnLayout.column === column
     ) as ReportColumnLayout;
     return {
       header: currentColumn?.columnDisplayName || column,
       width: currentColumn?.width || REPORT_DEFAULT_COLUMN_WIDTH,
-      font: REPORT_DEFAULT_FONT_CONFIG,
+      font: defaultReportFontConfig,
       style: currentColumn?.style,
     };
   }) as Excel.Column[];
@@ -76,17 +75,17 @@ function columnToLetter(column: number): string {
 }
 
 function createStyledWorksheetHeader(
-  worksheet: Excel.Worksheet,
+  worksheet: Excel.Worksheet
 ): Excel.Worksheet {
   Object.keys(worksheet.getRow(1).values).forEach((column, index) => {
     worksheet.getCell(`${columnToLetter(index + 1)}1`).font =
-      REPORT_HEADER_FONT_CONFIG;
+      headerReportFontConfig;
   });
   return worksheet;
 }
 
 function getSheetFreezeConfig(
-  sheet: WorksheetDefinitions,
+  sheet: WorksheetDefinitions
 ): ReportSheetFreezeConfig | undefined {
   if (sheet.xSplit || sheet.ySplit) {
     return {
@@ -99,13 +98,13 @@ function getSheetFreezeConfig(
 
 function formatLayoutConfig(
   columnLayout: ColumnDefinitions[],
-  worksheets: WorksheetDefinitions[],
+  worksheets: WorksheetDefinitions[]
 ): ReportSheetLayout[] {
   // Reformat column definitions to report layout with config per sheet
   const reportLayout = columnLayout.reduce(
     (acc: ReportSheetLayout[], curr: ColumnDefinitions) => {
       const sheet = acc.find(
-        (sheet: ReportSheetLayout) => sheet.sheetName === curr.sheet,
+        (sheet: ReportSheetLayout) => sheet.sheetName === curr.sheet
       );
       if (!sheet) {
         acc.push({
@@ -136,13 +135,13 @@ function formatLayoutConfig(
       }
       return acc;
     },
-    [],
+    []
   );
 
   // Reduce report layout to sheets that are present in the data
   return worksheets.map((sheet: WorksheetDefinitions) => {
     const sheetLayout = reportLayout.find(
-      (layout) => layout.sheetName === sheet.tabbladen,
+      (layout) => layout.sheetName === sheet.tabbladen
     );
     return {
       ...sheetLayout,
@@ -162,12 +161,12 @@ function createReportFilePath(baseName: string): string {
 export function getExcelReportConfig(
   reportBaseName: string,
   reportWorksheets: WorksheetDefinitions[],
-  reportColumnDefinitions: ColumnDefinitions[],
+  reportColumnDefinitions: ColumnDefinitions[]
 ): ExcelReportConfig {
   const filePath = createReportFilePath(reportBaseName);
   const layoutConfig = formatLayoutConfig(
     reportColumnDefinitions,
-    reportWorksheets,
+    reportWorksheets
   );
 
   return {
@@ -176,10 +175,11 @@ export function getExcelReportConfig(
   };
 }
 
-export function formatRecordsetsFromLayoutConfig(
-  layoutConfig: ReportSheetLayout[],
-): Recordset[] {
-  return layoutConfig.map((sheetLayout) => {
-    return { name: sheetLayout.sheetName };
-  });
+export function skipEmptySheet(row: {}): boolean {
+  const keys = Object.keys(row);
+  const values = Object.values(row);
+  return (
+    (keys.length === 1 && keys[0] === "Kolom" && values[0] === null) ||
+    keys.every((key) => key === null)
+  );
 }
